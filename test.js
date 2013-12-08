@@ -20,6 +20,55 @@ Lumen.discover(function(lumen) {
       lumen.discoverServicesAndCharacteristics(callback);
     },
     function(callback) {
+      console.log('readDeviceName');
+      lumen.readDeviceName(function(deviceName) {
+        console.log('\tdevice name = ' + deviceName);
+        callback();
+      });
+    },
+    function(callback) {
+      console.log('readSystemId');
+      lumen.readSystemId(function(systemId) {
+        console.log('\tsystem id = ' + systemId);
+        callback();
+      });
+    },
+    function(callback) {
+      console.log('readSerialNumber');
+      lumen.readSerialNumber(function(serialNumber) {
+        console.log('\tserial number = ' + serialNumber);
+        callback();
+      });
+    },
+    function(callback) {
+      console.log('readFirmwareRevision');
+      lumen.readFirmwareRevision(function(firmwareRevision) {
+        console.log('\tfirmware revision = ' + firmwareRevision);
+        callback();
+      });
+    },
+    function(callback) {
+      console.log('readHardwareRevision');
+      lumen.readHardwareRevision(function(hardwareRevision) {
+        console.log('\thardware revision = ' + hardwareRevision);
+        callback();
+      });
+    },
+    function(callback) {
+      console.log('readSoftwareRevision');
+      lumen.readHardwareRevision(function(softwareRevision) {
+        console.log('\tsoftware revision = ' + softwareRevision);
+        callback();
+      });
+    },
+    function(callback) {
+      console.log('readManufacturerName');
+      lumen.readManufacturerName(function(manufacturerName) {
+        console.log('\tmanufacturer name = ' + manufacturerName);
+        callback();
+      });
+    },
+    function(callback) {
       console.log('disconnect');
       lumen.disconnect(callback);
     }
