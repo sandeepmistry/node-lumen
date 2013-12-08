@@ -1,0 +1,35 @@
+Advertisement
+  Name:                 iSmartLight Bough
+  Service UUID's:       fff0
+  Manufacturer Data:    <System ID>
+
+1800
+  2a00 read         Device Name                                           (iSmartLight Bough)
+  2a01 read         Appearance
+  2a02 read, write  Peripheral Privacy Flag
+  2a03 read, write  Reconnection Address
+  2a04 read         Peripheral Preferred Connection Parameters
+
+1801
+  2a05 indicate     Service Changed
+
+180a
+  2a23 read         System ID
+  2a24 read         Model Number String
+  2a25 read         Serial Number String                                  (00000001)
+  2a26 read         Firmware Revision String                              (13042601)
+  2a27 read         Hardware Revision String                              (A133210A)
+  2a28 read         Software Revision String                              (A133210A) 
+  2a29 read         Manufacturer Name String                              (Bough Tech)
+  2a2a read         IEEE 11073-20601 Regulatory Certification Data List
+  2a50 read         PnP ID
+
+fff0
+  fff1 read, write
+  fff2 read
+  fff3 write
+  fff4 notify
+  fff5 read
+
+180f
+  2a19 read, notify Battery Level
