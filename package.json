@@ -1,0 +1,24 @@
+{
+  "name": "lumen",
+  "version": "0.0.0",
+  "description": "node.js lib for the Tabu Lumen",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sandeepmistry/node-lumen.git"
+  },
+  "keywords": [
+    "tabu",
+    "lumen",
+    "bulb",
+    "smart bulb"
+  ],
+  "author": "Sandeep Mistry <sandeep.mistry@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sandeepmistry/node-lumen/issues"
+  }
+}
