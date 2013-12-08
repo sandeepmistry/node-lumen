@@ -15,11 +15,11 @@ Advertisement
 
 180a
   2a23 read         System ID
-  2a24 read         Model Number String
+  2a24 read         Model Number String                                   (BG510)
   2a25 read         Serial Number String                                  (00000001)
   2a26 read         Firmware Revision String                              (13042601)
   2a27 read         Hardware Revision String                              (A133210A)
-  2a28 read         Software Revision String                              (A133210A) 
+  2a28 read         Software Revision String                              (Ver:0132) 
   2a29 read         Manufacturer Name String                              (Bough Tech)
   2a2a read         IEEE 11073-20601 Regulatory Certification Data List
   2a50 read         PnP ID

@@ -34,6 +34,13 @@ Lumen.discover(function(lumen) {
       });
     },
     function(callback) {
+      console.log('readModelNumber');
+      lumen.readModelNumber(function(modelNumber) {
+        console.log('\tmodel number = ' + modelNumber);
+        callback();
+      });
+    },
+    function(callback) {
       console.log('readSerialNumber');
       lumen.readSerialNumber(function(serialNumber) {
         console.log('\tserial number = ' + serialNumber);
@@ -56,7 +63,7 @@ Lumen.discover(function(lumen) {
     },
     function(callback) {
       console.log('readSoftwareRevision');
-      lumen.readHardwareRevision(function(softwareRevision) {
+      lumen.readSoftwareRevision(function(softwareRevision) {
         console.log('\tsoftware revision = ' + softwareRevision);
         callback();
       });
@@ -71,7 +78,7 @@ Lumen.discover(function(lumen) {
     function(callback) {
       console.log('readBatteryLevel');
       lumen.readBatteryLevel(function(batteryLevel) {
-        console.log('battery level = ' + batteryLevel);
+        console.log('\tbattery level = ' + batteryLevel);
 
         callback();
       });
