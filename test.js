@@ -69,6 +69,14 @@ Lumen.discover(function(lumen) {
       });
     },
     function(callback) {
+      console.log('readBatteryLevel');
+      lumen.readBatteryLevel(function(batteryLevel) {
+        console.log('battery level = ' + batteryLevel);
+
+        callback();
+      });
+    },
+    function(callback) {
       console.log('disconnect');
       lumen.disconnect(callback);
     }

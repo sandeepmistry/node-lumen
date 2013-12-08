@@ -17,6 +17,8 @@ var MANUFACTURER_NAME_UUID                  = '2a29';
 var REGULATORY_CERTIFICATE_DATA_LIST_UUID   = '2a2a';
 var PNP_ID_UUID                             = '2a50';
 
+var BATTERY_LEVEL_UUID                      = '2a19';
+
 function Lumen(peripheral) {
   this._peripheral = peripheral;
   this._services = {};
@@ -142,6 +144,12 @@ Lumen.prototype.readSoftwareRevision = function(callback) {
 
 Lumen.prototype.readManufacturerName = function(callback) {
   this.readStringCharacteristic(MANUFACTURER_NAME_UUID, callback);
+};
+
+Lumen.prototype.readBatteryLevel = function(callback) {
+  this.readDataCharacteristic(BATTERY_LEVEL_UUID, function(data) {
+    callback(data.readUInt8(0));
+  });
 };
 
 module.exports = Lumen;
