@@ -19,6 +19,12 @@ var PNP_ID_UUID                             = '2a50';
 
 var BATTERY_LEVEL_UUID                      = '2a19';
 
+var SERVICE_1_UUID                          = 'fff1';
+var SERVICE_2_UUID                          = 'fff2';
+var SERVICE_3_UUID                          = 'fff3';
+var SERVICE_4_UUID                          = 'fff4';
+var SERVICE_5_UUID                          = 'fff5';
+
 function Lumen(peripheral) {
   this._peripheral = peripheral;
   this._services = {};
@@ -29,6 +35,7 @@ function Lumen(peripheral) {
   this.address = this.id.substring(0, 17);
 
   this._peripheral.on('disconnect', this.onDisconnect.bind(this));
+  this._peripheral.on('connect', this.onConnect.bind(this));
 }
 
 util.inherits(Lumen, events.EventEmitter);
@@ -37,6 +44,10 @@ Lumen.discover = function(callback) {
   var startScanningOnPowerOn = function() {
     if (noble.state === 'poweredOn') {
       var onDiscover = function(peripheral) {
+        if (!peripheral.advertisement.manufacturerData) {
+          return;
+        }
+
         noble.removeListener('discover', onDiscover);
 
         noble.stopScanning();
@@ -59,6 +70,10 @@ Lumen.discover = function(callback) {
 
 Lumen.prototype.onDisconnect = function() {
   this.emit('disconnect');
+};
+
+Lumen.prototype.onConnect = function() {
+  this.emit('connect');
 };
 
 Lumen.prototype.toString = function() {
@@ -94,13 +109,21 @@ Lumen.prototype.discoverServicesAndCharacteristics = function(callback) {
       }
     }
 
-    callback(error);
+    this.syncValues(function() {
+      callback();
+    });
   }.bind(this));
 };
 
 Lumen.prototype.readDataCharacteristic = function(uuid, callback) {
   this._characteristics[uuid].read(function(error, data) {
     callback(data);
+  });
+};
+
+Lumen.prototype.writeDataCharacteristic = function(uuid, data, callback) {
+  this._characteristics[uuid].write(data, false, function(error) {
+    callback();
   });
 };
 
@@ -152,4 +175,77 @@ Lumen.prototype.readBatteryLevel = function(callback) {
   });
 };
 
+Lumen.prototype.readService1 = function(callback) {
+  this.readDataCharacteristic(SERVICE_1_UUID, callback);
+};
+
+Lumen.prototype.writeService1 = function(data, callback) {
+  this.writeDataCharacteristic(SERVICE_1_UUID, data, function() {
+    callback();
+  });
+};
+
+Lumen.prototype.readService2 = function(callback) {
+  this.readDataCharacteristic(SERVICE_2_UUID, callback);
+};
+
+Lumen.prototype.syncValues = function(callback) {
+  this._service1Data = new Buffer('07dfd99bfddd545a183e5e7a3e3cbeaa8a214b6b', 'hex');
+
+  this.writeService1(this._service1Data, function() {
+    this.readService2(function(data) {
+      this._service2Data = data;
+      callback();
+    }.bind(this));
+  }.bind(this));
+};
+
+Lumen.prototype.turnOff = function(callback) {
+  this._service1Data[0] = 0x00;
+  this._service1Data[4] = 0xfd;
+
+  this.writeService1(this._service1Data, callback);
+};
+
+Lumen.prototype.turnOn = function(callback) {
+  this._service1Data[0] = 0x01;
+  this._service1Data[4] = 0xb8;
+
+  this.writeService1(this._service1Data, callback);
+};
+
+Lumen.prototype.coolMode = function(callback) {
+  this._service1Data[0] = 0x01;
+  this._service1Data[6] = 0x50;
+
+  this.writeService1(this._service1Data, callback);
+};
+
+Lumen.prototype.warmMode = function(callback) {
+  this._service1Data[0] = 0x01;
+  this._service1Data[6] = 0x51;
+
+  this.writeService1(this._service1Data, callback);
+};
+
+Lumen.prototype.disco2Mode = function(callback) {
+  this._service1Data[0] = 0x01;
+  this._service1Data[6] = 0x53;
+
+  this.writeService1(this._service1Data, callback);
+};
+
+Lumen.prototype.disco1Mode = function(callback) {
+  this._service1Data[0] = 0x01;
+  this._service1Data[6] = 0x52;
+
+  this.writeService1(this._service1Data, callback);
+};
+
+Lumen.prototype.normalMode = function(callback) {
+  this._service1Data[0] = 0x01;
+  this._service1Data[6] = 0x54;
+
+  this.writeService1(this._service1Data, callback);
+};
 module.exports = Lumen;

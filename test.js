@@ -5,13 +5,17 @@ var Lumen = require('./index');
 Lumen.discover(function(lumen) {
   console.log('found lumen ' + lumen.toString());
 
+  lumen.on('connect', function() {
+    console.log('connected!');
+  });
+
+  lumen.on('disconnect', function() {
+    console.log('disconnected!');
+    process.exit(0);
+  });
+
   async.series([
     function(callback) {
-      lumen.on('disconnect', function() {
-        console.log('disconnected!');
-        process.exit(0);
-      });
-
       console.log('connect');
       lumen.connect(callback);
     },
@@ -82,6 +86,59 @@ Lumen.discover(function(lumen) {
 
         callback();
       });
+    },
+    function(callback) {
+      console.log('turnOff');
+      lumen.turnOff(callback);
+    },
+    function(callback) {
+      setTimeout(callback, 1000);
+    },
+    function(callback) {
+      console.log('turnOn');
+      lumen.turnOn(callback);
+    },
+    function(callback) {
+      setTimeout(callback, 1000);
+    },
+    function(callback) {
+      console.log('coolMode');
+      lumen.coolMode(callback);
+    },
+    function(callback) {
+      setTimeout(callback, 1000);
+    },
+    function(callback) {
+      console.log('warmMode');
+      lumen.warmMode(callback);
+    },
+    function(callback) {
+      setTimeout(callback, 1000);
+    },
+    function(callback) {
+      console.log('disco2Mode');
+      lumen.disco2Mode(callback);
+    },
+    function(callback) {
+      setTimeout(callback, 1000);
+    },
+    function(callback) {
+      console.log('disco1Mode');
+      lumen.disco1Mode(callback);
+    },
+    function(callback) {
+      setTimeout(callback, 1000);
+    },
+    function(callback) {
+      console.log('normalMode');
+      lumen.normalMode(callback);
+    },
+    function(callback) {
+      setTimeout(callback, 100);
+    },
+    function(callback) {
+      console.log('normalMode');
+      lumen.normalMode(callback);
     },
     function(callback) {
       console.log('disconnect');
