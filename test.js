@@ -134,11 +134,46 @@ Lumen.discover(function(lumen) {
       lumen.normalMode(callback);
     },
     function(callback) {
-      setTimeout(callback, 100);
+      setTimeout(callback, 1000);
     },
     function(callback) {
-      console.log('normalMode');
-      lumen.normalMode(callback);
+      console.log('warmWhite 100%');
+      lumen.warmWhite(100, callback);
+    },
+    function(callback) {
+      setTimeout(callback, 1000);
+    },
+    function(callback) {
+      console.log('warmWhite 90%');
+      lumen.warmWhite(90, callback);
+    },
+    function(callback) {
+      setTimeout(callback, 1000);
+    },
+    function(callback) {
+      console.log('warmWhite 70%');
+      lumen.warmWhite(70, callback);
+    },
+    function(callback) {
+      setTimeout(callback, 1000);
+    },
+    function(callback) {
+      console.log('warmWhite 50%');
+      lumen.warmWhite(50, callback);
+    },
+    function(callback) {
+      setTimeout(callback, 1000);
+    },
+    function(callback) {
+      console.log('warmWhite 30%');
+      lumen.warmWhite(30, callback);
+    },
+    function(callback) {
+      setTimeout(callback, 1000);
+    },
+    function(callback) {
+      console.log('warmWhite 0%');
+      lumen.warmWhite(0, callback);
     },
     function(callback) {
       console.log('disconnect');
