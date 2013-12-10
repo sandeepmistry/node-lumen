@@ -285,4 +285,40 @@ Lumen.prototype.warmWhite = function(percentage, callback) {
   this.writeService1(this._service1Data, callback);
 };
 
+Lumen.prototype.color = function(c, m, y, w, callback) {
+  if (c < 0) {
+    c = 0;
+  } else if (c > 1) {
+    c = 1;
+  }
+
+  if (m < 0) {
+    m = 0;
+  } else if (m > 1) {
+    m = 1;
+  }
+
+  if (y < 0) {
+    y = 0;
+  } else if (y > 1) {
+    y = 1;
+  }
+
+  if (w < 0) {
+    w = 0;
+  } else if (w > 1) {
+    w = 1;
+  }
+
+  this._service1Data[0] = 0x01;
+  this._service1Data[1] = Math.round(c * 105.0) + 120;
+  this._service1Data[2] = Math.round(m * 105.0) + 120;
+  this._service1Data[3] = Math.round(y * 105.0) + 120;
+  this._service1Data[4] = Math.round((1.0 - w) * 15.0) + 240;
+
+  this._service1Data[6] = 0x54;
+
+  this.writeService1(this._service1Data, callback);
+};
+
 module.exports = Lumen;

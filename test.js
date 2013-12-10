@@ -176,6 +176,55 @@ Lumen.discover(function(lumen) {
       lumen.warmWhite(0, callback);
     },
     function(callback) {
+      setTimeout(callback, 1000);
+    },
+    function(callback) {
+      console.log('color cyan');
+      lumen.color(1.0, 0.0, 0.0, 0.0, callback);
+    },
+    function(callback) {
+      setTimeout(callback, 1000);
+    },
+    function(callback) {
+      console.log('color magenta');
+      lumen.color(0.0, 1.0, 0.0, 0.0, callback);
+    },
+    function(callback) {
+      setTimeout(callback, 1000);
+    },
+    function(callback) {
+      console.log('color yellow');
+      lumen.color(0.0, 0.0, 1.0, 0.0, callback);
+    },
+    function(callback) {
+      setTimeout(callback, 1000);
+    },
+    function(callback) {
+      console.log('color red');
+      lumen.color(0.0, 1.0, 1.0, 0.0, callback);
+    },
+    function(callback) {
+      setTimeout(callback, 1000);
+    },
+    function(callback) {
+      console.log('color green');
+      lumen.color(1.0, 0.0, 1.0, 0.0, callback);
+    },
+    function(callback) {
+      setTimeout(callback, 1000);
+    },
+    function(callback) {
+      console.log('color blue');
+      lumen.color(1.0, 1.0, 0.0, 0.0, callback);
+    },
+    function(callback) {
+      setTimeout(callback, 1000);
+    },
+    function(callback) {
+      console.log('color white');
+      lumen.color(0.0, 0.0, 0.0, 1.0, callback);
+    },
+    function(callback) {
       console.log('disconnect');
       lumen.disconnect(callback);
     }
