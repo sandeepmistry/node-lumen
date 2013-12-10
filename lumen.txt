@@ -25,11 +25,47 @@ Advertisement
   2a50 read         PnP ID
 
 fff0
-  fff1 read, write
-  fff2 read
+  fff1 read, write  0fdfd99bfddd545a183e5e7a3e3cbeaa8a214b6b
+  fff2 read         08ded99bfddd545a183e5e7a3e3cbeaa8a214b6b
   fff3 write
   fff4 notify
   fff5 read
 
 180f
   2a19 read, notify Battery Level
+
+gatttool
+========
+
+primary
+
+attr handle: 0x0001, end grp handle: 0x000b uuid: 00001800-0000-1000-8000-00805f9b34fb
+attr handle: 0x000c, end grp handle: 0x000f uuid: 00001801-0000-1000-8000-00805f9b34fb
+attr handle: 0x0010, end grp handle: 0x0022 uuid: 0000180a-0000-1000-8000-00805f9b34fb
+attr handle: 0x0023, end grp handle: 0x0033 uuid: 0000fff0-0000-1000-8000-00805f9b34fb
+attr handle: 0x0034, end grp handle: 0xffff uuid: 0000180f-0000-1000-8000-00805f9b34fb
+
+characteristics 
+
+handle: 0x0002, char properties: 0x02, char value handle: 0x0003, uuid: 00002a00-0000-1000-8000-00805f9b34fb
+handle: 0x0004, char properties: 0x02, char value handle: 0x0005, uuid: 00002a01-0000-1000-8000-00805f9b34fb
+handle: 0x0006, char properties: 0x0a, char value handle: 0x0007, uuid: 00002a02-0000-1000-8000-00805f9b34fb
+handle: 0x0008, char properties: 0x0a, char value handle: 0x0009, uuid: 00002a03-0000-1000-8000-00805f9b34fb
+handle: 0x000a, char properties: 0x02, char value handle: 0x000b, uuid: 00002a04-0000-1000-8000-00805f9b34fb
+handle: 0x000d, char properties: 0x20, char value handle: 0x000e, uuid: 00002a05-0000-1000-8000-00805f9b34fb
+handle: 0x0011, char properties: 0x02, char value handle: 0x0012, uuid: 00002a23-0000-1000-8000-00805f9b34fb
+handle: 0x0013, char properties: 0x02, char value handle: 0x0014, uuid: 00002a24-0000-1000-8000-00805f9b34fb
+handle: 0x0015, char properties: 0x02, char value handle: 0x0016, uuid: 00002a25-0000-1000-8000-00805f9b34fb
+handle: 0x0017, char properties: 0x02, char value handle: 0x0018, uuid: 00002a26-0000-1000-8000-00805f9b34fb
+handle: 0x0019, char properties: 0x02, char value handle: 0x001a, uuid: 00002a27-0000-1000-8000-00805f9b34fb
+handle: 0x001b, char properties: 0x02, char value handle: 0x001c, uuid: 00002a28-0000-1000-8000-00805f9b34fb
+handle: 0x001d, char properties: 0x02, char value handle: 0x001e, uuid: 00002a29-0000-1000-8000-00805f9b34fb
+handle: 0x001f, char properties: 0x02, char value handle: 0x0020, uuid: 00002a2a-0000-1000-8000-00805f9b34fb
+handle: 0x0021, char properties: 0x02, char value handle: 0x0022, uuid: 00002a50-0000-1000-8000-00805f9b34fb
+handle: 0x0024, char properties: 0x0a, char value handle: 0x0025, uuid: 0000fff1-0000-1000-8000-00805f9b34fb
+handle: 0x0027, char properties: 0x02, char value handle: 0x0028, uuid: 0000fff2-0000-1000-8000-00805f9b34fb
+handle: 0x002a, char properties: 0x08, char value handle: 0x002b, uuid: 0000fff3-0000-1000-8000-00805f9b34fb
+handle: 0x002d, char properties: 0x10, char value handle: 0x002e, uuid: 0000fff4-0000-1000-8000-00805f9b34fb
+handle: 0x0031, char properties: 0x02, char value handle: 0x0032, uuid: 0000fff5-0000-1000-8000-00805f9b34fb
+handle: 0x0035, char properties: 0x12, char value handle: 0x0036, uuid: 00002a19-0000-1000-8000-00805f9b34fb
+
