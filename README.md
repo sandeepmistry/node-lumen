@@ -83,6 +83,28 @@ __Color__
 
     lumen.color(cyan, magenta, yellow, white, callback);
 
+__State__
+
+    lumen.readState(callback(state));
+
+State structure:
+    
+    {
+        on: true | false,
+
+        mode: 'unknown' | 'normal' | 'cool' | 'warm' | 'disco1' | 'disco2' | 'warmWhite' | 'color',
+
+        // if mode is 'warmWhite'
+        warmWhitePercentage: 'unknown' | 100 | 90 | 70 | 50 | 30 | 0,
+
+        // if mode is 'color'
+        colorC: 0.0 - 1.0,
+        colorM: 0.0 - 1.0,
+        colorY: 0.0 - 1.0,
+        colorW: 0.0 - 1.0
+    }
+
+
 Events 
 ------
 

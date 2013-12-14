@@ -192,6 +192,53 @@ Lumen.prototype.syncValues = function(callback) {
   }.bind(this));
 };
 
+Lumen.prototype.readState = function(callback) {
+  this.readService1(function(data) {
+    var state = {};
+
+    state.on = (data[0] !== 0x00);
+
+    var MODE_MAPPER = {
+      0x50: 'cool',
+      0x51: 'warm',
+      0x52: 'disco1',
+      0x53: 'disco2',
+      0x54: 'normal'
+    };
+
+    var mode = MODE_MAPPER[data[6]] || 'unknown';    
+
+    if (mode === 'normal') {
+      if ((data[1] === 0xdf) &&
+            (data[2] === 0xd9) &&
+            ((data[4] == 0x9a) || (data[4] == 0x9b))) {
+        mode = 'warmWhite';
+
+        var WARM_WHITE_PERCENTAGE_MAPPER = {
+          0x58: 100,
+          0x5f: 90,
+          0xa9: 70,
+          0xb3: 50,
+          0xba: 30,
+          0x8b: 0
+        };
+
+        state.warmWhitePercentage = WARM_WHITE_PERCENTAGE_MAPPER[data[3]] || 'unknown';
+      } else if (data[4] >= 0xf0) {
+        mode = 'color';
+
+        state.colorC = (data[1] - 120.0) / 105.0;
+        state.colorM = (data[2] - 120.0) / 105.0;
+        state.colorY = (data[3] - 120.0) / 105.0;
+        state.colorW = (0xff - data[4]) / (1.0 * 0x0f);
+      }
+    }
+    state.mode = mode;
+
+    callback(state);
+  }.bind(this));
+};
+
 Lumen.prototype.turnOff = function(callback) {
   this._service1Data[0] = 0x00;
   this._service1Data[4] = 0xfd;
@@ -220,16 +267,16 @@ Lumen.prototype.warmMode = function(callback) {
   this.writeService1(this._service1Data, callback);
 };
 
-Lumen.prototype.disco2Mode = function(callback) {
+Lumen.prototype.disco1Mode = function(callback) {
   this._service1Data[0] = 0x01;
-  this._service1Data[6] = 0x53;
+  this._service1Data[6] = 0x52;
 
   this.writeService1(this._service1Data, callback);
 };
 
-Lumen.prototype.disco1Mode = function(callback) {
+Lumen.prototype.disco2Mode = function(callback) {
   this._service1Data[0] = 0x01;
-  this._service1Data[6] = 0x52;
+  this._service1Data[6] = 0x53;
 
   this.writeService1(this._service1Data, callback);
 };
