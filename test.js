@@ -102,6 +102,14 @@ Lumen.discover(function(lumen) {
     },
     readState,
     function(callback) {
+      console.log('readBatteryLevel');
+      lumen.readBatteryLevel(function(batteryLevel) {
+        console.log('\tbattery level = ' + batteryLevel);
+
+        callback();
+      });
+    },
+    function(callback) {
       console.log('turnOff');
       lumen.turnOff(callback);
     },

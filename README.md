@@ -55,6 +55,11 @@ __Device Info__
 
     lumen.readManufacturerName(callback(manufacturerName));
 
+__Battery Level__
+
+    // batteryLevel range is 0 - 100
+    lumen.readBatteryLevel(callback(batteryLevel));
+
 __Turn off/on__
 
     lumen.turnOff(callback);
