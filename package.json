@@ -1,6 +1,6 @@
 {
   "name": "lumen",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "node.js lib for the Tabu Lumen",
   "main": "index.js",
   "scripts": {
