@@ -34,6 +34,8 @@ function Lumen(peripheral) {
   this.id = peripheral.advertisement.manufacturerData.toString('hex').match(/.{1,2}/g).reverse().join(':');
   this.address = this.id.substring(0, 17);
 
+  this._keepAliveTimer = null;
+
   this._peripheral.on('disconnect', this.onDisconnect.bind(this));
   this._peripheral.on('connect', this.onConnect.bind(this));
 }
@@ -69,6 +71,10 @@ Lumen.discover = function(callback) {
 };
 
 Lumen.prototype.onDisconnect = function() {
+  if (this._keepAliveTimer) {
+    clearTimeout(this._keepAliveTimer);
+  }
+
   this.emit('disconnect');
 };
 
@@ -200,11 +206,21 @@ Lumen.prototype.setup = function(callback) {
         this.readService2(function(data) {
           this._service2Data = data;
 
+          this.keepAlive();
+
           callback();
         }.bind(this));
       }.bind(this));
     }.bind(this));
   }.bind(this));
+};
+
+Lumen.prototype.keepAlive = function() {
+  this._keepAliveTimer = setTimeout(function() {
+    this.readBatteryLevel(function(batteryLevel) {
+      this.keepAlive();
+    }.bind(this));
+  }.bind(this), 5000);
 };
 
 Lumen.prototype.readState = function(callback) {
