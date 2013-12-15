@@ -27,7 +27,15 @@ __Disconnect__
 
 __Discover Services and Characteristics__
 
+Run after connect.
+
     lumen.discoverServicesAndCharacteristics(callback);
+
+__Setup__
+
+Run after discover services and characteristics.
+
+    lumen.setup(callback);
 
 __Device Info__
 
