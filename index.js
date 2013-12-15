@@ -254,7 +254,11 @@ Lumen.prototype.readState = function(callback) {
           0x8b: 0
         };
 
-        state.warmWhitePercentage = WARM_WHITE_PERCENTAGE_MAPPER[data[3]] || 'unknown';
+        state.warmWhitePercentage = WARM_WHITE_PERCENTAGE_MAPPER[data[3]];
+
+        if (state.warmWhitePercentage === undefined) {
+          state.warmWhitePercentage = 'unknown';
+        }
       } else if (data[4] >= 0xf0) {
         mode = 'color';
 
