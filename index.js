@@ -107,9 +107,7 @@ Lumen.prototype.discoverServicesAndCharacteristics = function(callback) {
       }
     }
 
-    this.syncValues(function() {
-      callback();
-    });
+    callback();
   }.bind(this));
 };
 
@@ -181,13 +179,22 @@ Lumen.prototype.readService2 = function(callback) {
   this.readDataCharacteristic(SERVICE_2_UUID, callback);
 };
 
-Lumen.prototype.syncValues = function(callback) {
-  this._service1Data = new Buffer('07dfd99bfddd545a183e5e7a3e3cbeaa8a214b6b', 'hex');
+Lumen.prototype.setup = function(callback) {
+  this._service1Data = new Buffer('08610766a7680f5a183e5e7a3e3cbeaa8a214b6b', 'hex');
 
   this.writeService1(this._service1Data, function() {
     this.readService2(function(data) {
       this._service2Data = data;
-      callback();
+
+      this._service1Data = new Buffer('07dfd99bfddd545a183e5e7a3e3cbeaa8a214b6b', 'hex');
+
+      this.writeService1(this._service1Data, function() {
+        this.readService2(function(data) {
+          this._service2Data = data;
+
+          callback();
+        }.bind(this));
+      }.bind(this));
     }.bind(this));
   }.bind(this));
 };

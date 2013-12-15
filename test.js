@@ -41,6 +41,10 @@ Lumen.discover(function(lumen) {
       lumen.discoverServicesAndCharacteristics(callback);
     },
     function(callback) {
+      console.log('setup');
+      lumen.setup(callback);
+    },
+    function(callback) {
       console.log('readDeviceName');
       lumen.readDeviceName(function(deviceName) {
         console.log('\tdevice name = ' + deviceName);
