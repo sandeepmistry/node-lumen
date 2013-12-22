@@ -242,30 +242,34 @@ Lumen.prototype.readState = function(callback) {
       0x54: 'normal'
     };
 
-    var mode = MODE_MAPPER[data[6]] || 'unknown';    
+    var mode = MODE_MAPPER[data[6]] || 'unknown';
 
     if (mode === 'normal') {
       if ((data[1] === 0xdf) &&
             (data[2] === 0xd9) &&
-            ((data[4] == 0x9a) || (data[4] == 0x9b))) {
+            ((data[3] == 0x9a) || (data[3] == 0x9b))) {
         mode = 'warmWhite';
 
         var WARM_WHITE_PERCENTAGE_MAPPER = {
           0x58: 100,
-          0x5f: 90,
-          0xa9: 70,
-          0xb3: 50,
-          0xba: 30,
-          0x8b: 0
+          0xa3: 90,
+          0xb5: 70,
+          0x87: 50,
+          0x99: 30,
+          0xf2: 0
         };
 
-        state.warmWhitePercentage = WARM_WHITE_PERCENTAGE_MAPPER[data[3]];
+        state.warmWhitePercentage = WARM_WHITE_PERCENTAGE_MAPPER[data[4]];
 
         if (state.warmWhitePercentage === undefined) {
           state.warmWhitePercentage = 'unknown';
         }
-      } else if (data[4] >= 0xf0) {
+      }
+
+      if (data[4] >= 0xf0 && 
+          (state.warmWhitePercentage === undefined || state.warmWhitePercentage === 'unknown')) {
         mode = 'color';
+        state.warmWhitePercentage = undefined;
 
         state.colorC = (data[1] - 120.0) / 105.0;
         state.colorM = (data[2] - 120.0) / 105.0;
@@ -281,14 +285,13 @@ Lumen.prototype.readState = function(callback) {
 
 Lumen.prototype.turnOff = function(callback) {
   this._service1Data[0] = 0x00;
-  this._service1Data[4] = 0xfd;
 
   this.writeService1(this._service1Data, callback);
 };
 
 Lumen.prototype.turnOn = function(callback) {
   this._service1Data[0] = 0x01;
-  this._service1Data[4] = 0xb8;
+  this._service1Data[4] = 0xb5;
 
   this.writeService1(this._service1Data, callback);
 };
@@ -342,23 +345,23 @@ Lumen.prototype.warmWhite = function(percentage, callback) {
   this._service1Data[6] = 0x54;
 
   if (percentage >= 100) {
-    this._service1Data[3] = 0x58;
-    this._service1Data[4] = 0x9b;
+    this._service1Data[3] = 0x9a;
+    this._service1Data[4] = 0x58;
   } else if (percentage >= 90) {
-    this._service1Data[3] = 0x5f;
-    this._service1Data[4] = 0x9b;
+    this._service1Data[3] = 0x9b;
+    this._service1Data[4] = 0xa3;
   } else if (percentage >= 70) {
-    this._service1Data[3] = 0xa9;
-    this._service1Data[4] = 0x9a;
+    this._service1Data[3] = 0x9b;
+    this._service1Data[4] = 0xb5;
   } else if (percentage >= 50) {
-    this._service1Data[3] = 0xb3;
-    this._service1Data[4] = 0x9a;
+    this._service1Data[3] = 0x9b;
+    this._service1Data[4] = 0x87;
   } else if (percentage >= 30) {
-    this._service1Data[3] = 0xba;
-    this._service1Data[4] = 0x9a;
+    this._service1Data[3] = 0x9b;
+    this._service1Data[4] = 0x99;
   } else {
-    this._service1Data[3] = 0x8b;
-    this._service1Data[4] = 0x9a;
+    this._service1Data[3] = 0x9b;
+    this._service1Data[4] = 0xf2;
   }
 
   this.writeService1(this._service1Data, callback);
