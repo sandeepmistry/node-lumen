@@ -1,6 +1,8 @@
 node-lumen
 ==========
 
+[![Analytics](https://ga-beacon.appspot.com/UA-56089547-1/sandeepmistry/node-lumen?pixel)](https://github.com/igrigorik/ga-beacon)
+
 node.js lib for the [Tabu Lumen](http://tabuproducts.com/shop/lumen-bulb/)
 
 Install
