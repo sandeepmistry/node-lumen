@@ -25,6 +25,9 @@ var SERVICE_3_UUID                          = 'fff3';
 var SERVICE_4_UUID                          = 'fff4';
 var SERVICE_5_UUID                          = 'fff5';
 
+var SERVICE_KEYADD = new Uint8Array([0, 244, 229, 214, 163, 178, 163, 178, 193, 244, 229, 214, 163, 178, 193, 244, 229, 214, 163, 178]);
+var SERVICE_KEYXOR = new Uint8Array([0, 43, 60, 77, 94, 111, 247, 232, 217, 202, 187, 172, 157, 142, 127, 94, 111, 247, 232, 217]);
+
 function Lumen(peripheral) {
   this._peripheral = peripheral;
   this._services = {};
@@ -199,6 +202,7 @@ Lumen.prototype.readService2 = function(callback) {
 };
 
 Lumen.prototype.setup = function(callback) {
+  // send auth codes
   this._service1Data = new Buffer('08610766a7680f5a183e5e7a3e3cbeaa8a214b6b', 'hex');
 
   this.writeService1(this._service1Data, function() {
@@ -270,6 +274,9 @@ Lumen.prototype.readState = function(callback) {
           (state.warmWhitePercentage === undefined || state.warmWhitePercentage === 'unknown')) {
         mode = 'color';
         state.warmWhitePercentage = undefined;
+        
+        // TODO fix decryptCommand and retrieve decrypted rgb color
+        //~ var decrypted = decryptCommand(data);
 
         state.colorC = (data[1] - 120.0) / 105.0;
         state.colorM = (data[2] - 120.0) / 105.0;
@@ -402,5 +409,105 @@ Lumen.prototype.color = function(c, m, y, w, callback) {
 
   this.writeService1(this._service1Data, callback);
 };
+
+// Thanks to https://github.com/mrquincle/luminosi/ findings and code
+
+function add(array, key) { 
+  var i = 0;
+  var j = array.length - 1;
+  while(j >= 0) 
+  { 
+    var k = i + ((0xff & array[j]) + (0xff & key[j]));
+    if(k >= 256)
+    { 
+      i = k >> 8; 
+      k -= 256; 
+    } else { 
+      i = 0;
+    } 
+    array[j] = k; 
+    j--;
+  }
+}
+
+function subtract(array, key) {
+  var abyte1 = new Uint8Array(array);
+  var abyte2 = new Uint8Array(key);
+  var byte0 = abyte1[0]; 
+  var byte1 = abyte2[0]; 
+  var c = 0;
+  if(byte0 < byte1) 
+    c = 0xff + 1; 
+  for(var i = 0; i < abyte1.length - 1; i++) 
+  {
+    var j = 0xff & abyte1[i + 1]; 
+    var k = 0xff & abyte2[i + 1]; 
+    var c1 = '\0'; 
+    if(j < k) 
+    { 
+      abyte1[i] = (-1 + abyte1[i]); 
+      c1 = 0xff + 1;
+    } 
+    array[i] = ((c + (0xff & abyte1[i])) - (0xff & abyte2[i])); 
+    c = c1; 
+  } 
+
+  array[i] = ((c + (0xff & abyte1[i])) - (0xff & abyte2[i])); 
+}
+
+function xor(array, key) {
+  for (var i = 0; i < array.length; i++) {
+    array[i] = array[i] ^ key[i];
+  }
+}
+
+Lumen.prototype.encryptCommand = function(opcode, buffer) {
+  var data = new Buffer(20);
+  
+  // Set buffer data
+  for (var i = 0; i < data.length; i++) {
+    if (i < buffer.length) {
+      data[i] = buffer[i];
+    } else {
+      data[i] = 0;
+    }
+  }
+  
+  // Encrypt data
+  add(data, SERVICE_KEYADD);
+  xor(data, SERVICE_KEYXOR);
+  
+  // Set opcode
+  data[0] = opcode;
+  
+  return data;
+}
+
+Lumen.prototype.decryptCommand = function (data) {
+  var string = data.toString('ascii');
+  var buf = new Uint8Array(20);
+  
+  for (var i=0; i<string.length; i++) {
+    buf[i] = string.charCodeAt(i);
+  }
+
+  // Decrypt data
+  xor(buf, SERVICE_KEYXOR);
+  subtract(buf, SERVICE_KEYADD);
+  
+  return buf;
+}
+
+Lumen.prototype.rgbColor = function (color, callback) {
+  var cmd = new Buffer([0x0, 0x99, 0x99, 0x99]);
+    
+  for (var i = 0; i < 3; i++) {
+    // ensure rgb is in range 0-99
+    cmd[i+1] = Math.min(Math.max(0, parseInt(color[i])), 99);
+  }
+  
+  var encrypted = this.encryptCommand(0x01, cmd);
+  this.writeService1(encrypted, callback);
+}
 
 module.exports = Lumen;
