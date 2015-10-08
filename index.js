@@ -248,6 +248,10 @@ Lumen.prototype.readState = function(callback) {
 
     var mode = MODE_MAPPER[data[6]] || 'unknown';
 
+    var decrypted = decryptCommand(data);
+    console.log(">>", data);
+    console.log(">>>", decrypted);
+
     if (mode === 'normal') {
       if ((data[1] === 0xdf) &&
             (data[2] === 0xd9) &&
@@ -274,11 +278,6 @@ Lumen.prototype.readState = function(callback) {
           (state.warmWhitePercentage === undefined || state.warmWhitePercentage === 'unknown')) {
         mode = 'color';
         state.warmWhitePercentage = undefined;
-
-        // TODO fix decryptCommand and retrieve decrypted rgb color
-        //~ var decrypted = decryptCommand(data);
-        console.log(">>", data);
-        console.log(">>>", decrypted);
 
         state.colorC = (data[1] - 120.0) / 105.0;
         state.colorM = (data[2] - 120.0) / 105.0;
@@ -379,7 +378,7 @@ function subtract(array, key) {
   {
     var j = 0xff & abyte1[i + 1];
     var k = 0xff & abyte2[i + 1];
-    var c1 = '\0';
+    var c1 = 0;
     if(j < k)
     {
       abyte1[i] = (-1 + abyte1[i]);
