@@ -277,6 +277,8 @@ Lumen.prototype.readState = function(callback) {
 
         // TODO fix decryptCommand and retrieve decrypted rgb color
         //~ var decrypted = decryptCommand(data);
+        console.log(">>", data);
+        console.log(">>>", decrypted);
 
         state.colorC = (data[1] - 120.0) / 105.0;
         state.colorM = (data[2] - 120.0) / 105.0;
@@ -419,16 +421,18 @@ function encryptCommand(buffer) {
 }
 
 function decryptCommand (data) {
-  var string = data.toString('ascii');
-  var buf = new Uint8Array(20);
+  var data = new Buffer(data);
+  var buf = new Buffer(20);
 
-  for (var i=0; i<string.length; i++) {
-    buf[i] = string.charCodeAt(i);
-  }
+  for (var i=0; i<data.length; i++)
+    buf[i] = data[i];
 
   // Decrypt data
   xor(buf, SERVICE_KEYXOR);
   subtract(buf, SERVICE_KEYADD);
+
+  // Set 'on' bit
+  buf[0] = 0x01 & data[0];
 
   return buf;
 }
