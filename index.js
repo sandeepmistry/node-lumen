@@ -331,41 +331,27 @@ Lumen.prototype.warmWhite = function(percentage, callback) {
   _writeCommand(this, [0x01, 0x00, 0x00, 0x00, zeroto99], callback)
 };
 
-Lumen.prototype.color = function(c, m, y, w, callback) {
-  if (c < 0) {
-    c = 0;
-  } else if (c > 1) {
-    c = 1;
-  }
+/* Parameters:  c,m,y,k in range 0.0-1.0 */
+Lumen.prototype.color = function(c, m, y, k, callback) {
+  // standard c m y k -> rgb conversion
+  var r = 1. - (c-k);
+  var g = 1. - (m-k);
+  var b = 1. - (y-k);
 
-  if (m < 0) {
-    m = 0;
-  } else if (m > 1) {
-    m = 1;
-  }
-
-  if (y < 0) {
-    y = 0;
-  } else if (y > 1) {
-    y = 1;
-  }
-
-  if (w < 0) {
-    w = 0;
-  } else if (w > 1) {
-    w = 1;
-  }
-
-  this._service1Data[0] = 0x01;
-  this._service1Data[1] = Math.round(c * 105.0) + 120;
-  this._service1Data[2] = Math.round(m * 105.0) + 120;
-  this._service1Data[3] = Math.round(y * 105.0) + 120;
-  this._service1Data[4] = Math.round((1.0 - w) * 15.0) + 240;
-
-  this._service1Data[6] = 0x54;
-
-  this.writeService1(this._service1Data, callback);
+  this.rgbColor([r*100, g*100, b*100], callback);
 };
+
+/* Parameters:  color:[r,b,g] in range 0-99 */
+Lumen.prototype.rgbColor = function (color, callback) {
+  var cmd = [0x01, 0x99, 0x99, 0x99];
+
+  for (var i = 0; i < 3; i++) {
+    // ensure rgb is in range 0-99
+    cmd[i+1] = Math.min(Math.max(0, parseInt(color[i])), 99);
+  }
+
+  _writeCommand(this, cmd, callback);
+}
 
 function add(array, key) {
   var i = 0;
@@ -451,18 +437,6 @@ Lumen.prototype.decryptCommand = function (data) {
   subtract(buf, SERVICE_KEYADD);
 
   return buf;
-}
-
-Lumen.prototype.rgbColor = function (color, callback) {
-  var cmd = new Buffer([0x0, 0x99, 0x99, 0x99]);
-
-  for (var i = 0; i < 3; i++) {
-    // ensure rgb is in range 0-99
-    cmd[i+1] = Math.min(Math.max(0, parseInt(color[i])), 99);
-  }
-
-  var encrypted = this.encryptCommand(0x01, cmd);
-  this.writeService1(encrypted, callback);
 }
 
 module.exports = Lumen;
