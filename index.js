@@ -327,39 +327,8 @@ Lumen.prototype.normalMode = function(callback) {
 };
 
 Lumen.prototype.warmWhite = function(percentage, callback) {
-  if (percentage < 0) {
-    percentage = 0;
-  } else if (percentage > 100) {
-    percentage = 100;
-  }
-
-  this._service1Data[0] = 0x01;
-  this._service1Data[1] = 0xdf;
-  this._service1Data[2] = 0xd9;
-
-  this._service1Data[6] = 0x54;
-
-  if (percentage >= 100) {
-    this._service1Data[3] = 0x9a;
-    this._service1Data[4] = 0x58;
-  } else if (percentage >= 90) {
-    this._service1Data[3] = 0x9b;
-    this._service1Data[4] = 0xa3;
-  } else if (percentage >= 70) {
-    this._service1Data[3] = 0x9b;
-    this._service1Data[4] = 0xb5;
-  } else if (percentage >= 50) {
-    this._service1Data[3] = 0x9b;
-    this._service1Data[4] = 0x87;
-  } else if (percentage >= 30) {
-    this._service1Data[3] = 0x9b;
-    this._service1Data[4] = 0x99;
-  } else {
-    this._service1Data[3] = 0x9b;
-    this._service1Data[4] = 0xf2;
-  }
-
-  this.writeService1(this._service1Data, callback);
+  zeroto99 = Math.max(0, Math.min(percentage, 99))
+  _writeCommand(this, [0x01, 0x00, 0x00, 0x00, zeroto99], callback)
 };
 
 Lumen.prototype.color = function(c, m, y, w, callback) {
