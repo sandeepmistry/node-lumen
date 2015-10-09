@@ -233,56 +233,49 @@ Lumen.prototype.keepAlive = function() {
 };
 
 Lumen.prototype.readState = function(callback) {
-  this.readService1(function(data) {
+  this.readService1(function(encdata) {
     var state = {};
+    var data = decryptCommand(encdata);
 
-    state.on = (data[0] !== 0x00);
+    state.on = (data[0] == 0x01);
 
     var MODE_MAPPER = {
-      0x50: 'cool',
-      0x51: 'warm',
-      0x52: 'disco1',
-      0x53: 'disco2',
-      0x54: 'normal'
+      0x00: 'colorORwarm',
+      0x01: 'disco2',           // flashing colors
+      0x02: 'disco1',           // very flashing colors
+      0x03: 'warm',             // red-orange colors cycle
+      0x04: 'cool',             // blue-purple colors cycle
+      0x48: 'normal'            // appears after the 'on' command
     };
+
+    // uncomment to debug
+    //~ console.log(data);
 
     var mode = MODE_MAPPER[data[6]] || 'unknown';
 
-    var decrypted = decryptCommand(data);
-    console.log(">>", data);
-    console.log(">>>", decrypted);
-
-    if (mode === 'normal') {
-      if ((data[1] === 0xdf) &&
-            (data[2] === 0xd9) &&
-            ((data[3] == 0x9a) || (data[3] == 0x9b))) {
-        mode = 'warmWhite';
-
-        var WARM_WHITE_PERCENTAGE_MAPPER = {
-          0x58: 100,
-          0xa3: 90,
-          0xb5: 70,
-          0x87: 50,
-          0x99: 30,
-          0xf2: 0
-        };
-
-        state.warmWhitePercentage = WARM_WHITE_PERCENTAGE_MAPPER[data[4]];
-
-        if (state.warmWhitePercentage === undefined) {
-          state.warmWhitePercentage = 'unknown';
-        }
-      }
-
-      if (data[4] >= 0xf0 &&
-          (state.warmWhitePercentage === undefined || state.warmWhitePercentage === 'unknown')) {
-        mode = 'color';
+    if (mode === 'colorORwarm') {
+      if (data[4] > 0x0) {
+        mode = 'warmWhite';     // normal lamp mode
+        state.warmWhitePercentage = data[4];
+      } else {
+        mode = 'color';         // color lamp mode
         state.warmWhitePercentage = undefined;
 
-        state.colorC = (data[1] - 120.0) / 105.0;
-        state.colorM = (data[2] - 120.0) / 105.0;
-        state.colorY = (data[3] - 120.0) / 105.0;
-        state.colorW = (0xff - data[4]) / (1.0 * 0x0f);
+        // rgb state: range 0-99
+        state.colorR = data[1];
+        state.colorG = data[2];
+        state.colorB = data[3];
+
+        // cmyk state: range 0.0-1.0
+        // standard rgb -> cmyk conversion
+        var c = 1. - state.colorR/99.;
+        var m = 1. - state.colorG/99.;
+        var y = 1. - state.colorB/99.;
+        var k = Math.min(c, m, y);
+        state.colorC = c - k;
+        state.colorM = m - k;
+        state.colorY = y - k;
+        state.colorW = k;
       }
     }
     state.mode = mode;
@@ -439,8 +432,6 @@ function decryptCommand (data) {
 function writeCommand(_this, cmd, callback) {
   var buf = new Buffer(cmd);
   var encrypted = encryptCommand(buf);
-  // TODO remove debug
-  console.log(encrypted)
   _this.writeService1(encrypted, callback);
 }
 
