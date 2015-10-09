@@ -324,7 +324,7 @@ Lumen.prototype.color = function(c, m, y, k, callback) {
   var g = 1. - (m-k);
   var b = 1. - (y-k);
 
-  this.rgbColor([r*100, g*100, b*100], callback);
+  this.rgbColor([r*99, g*99, b*99], callback);
 };
 
 /* Parameters:  color:[r,b,g] in range 0-99 */
