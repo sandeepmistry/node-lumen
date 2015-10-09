@@ -275,7 +275,7 @@ Lumen.prototype.readState = function(callback) {
         state.colorC = c - k;
         state.colorM = m - k;
         state.colorY = y - k;
-        state.colorW = k;
+        state.colorW = 1. - k;
       }
     }
     state.mode = mode;
@@ -317,8 +317,10 @@ Lumen.prototype.warmWhite = function(percentage, callback) {
   writeCommand(this, [0x01, 0x00, 0x00, 0x00, zeroto99], callback)
 };
 
-/* Parameters:  c,m,y,k in range 0.0-1.0 */
-Lumen.prototype.color = function(c, m, y, k, callback) {
+/* Parameters:  c,m,y,w in range 0.0-1.0 */
+Lumen.prototype.color = function(c, m, y, w, callback) {
+  var k = 1. - w
+
   // standard c m y k -> rgb conversion
   var r = 1. - (c-k);
   var g = 1. - (m-k);
