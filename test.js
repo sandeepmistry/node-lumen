@@ -5,10 +5,6 @@ var Lumen = require('./index');
 Lumen.discover(function(lumen) {
   console.log('found lumen ' + lumen.toString());
 
-  lumen.on('connect', function() {
-    console.log('connected!');
-  });
-
   lumen.on('disconnect', function() {
     console.log('disconnected!');
     process.exit(0);
@@ -17,7 +13,7 @@ Lumen.discover(function(lumen) {
   function readState(callback) {
     console.log('readState');
 
-    lumen.readState(function(state) {
+    lumen.readState(function(error, state) {
       console.log('\t' + JSON.stringify(state));
 
       callback();
@@ -33,69 +29,61 @@ Lumen.discover(function(lumen) {
 
   async.series([
     function(callback) {
-      console.log('connect');
-      lumen.connect(callback);
+      console.log('connectAndSetUp');
+      lumen.connectAndSetUp(callback);
     },
     function(callback) {
-      console.log('discoverServicesAndCharacteristics');
-      lumen.discoverServicesAndCharacteristics(callback);
+      console.log('readDeviceName');
+      lumen.readDeviceName(function(error, deviceName) {
+        console.log('\tdevice name = ' + deviceName);
+        callback();
+      });
     },
-    function(callback) {
-      console.log('setup');
-      lumen.setup(callback);
-    },
-    // function(callback) {
-    //   console.log('readDeviceName');
-    //   lumen.readDeviceName(function(deviceName) {
-    //     console.log('\tdevice name = ' + deviceName);
-    //     callback();
-    //   });
-    // },
     function(callback) {
       console.log('readSystemId');
-      lumen.readSystemId(function(systemId) {
+      lumen.readSystemId(function(error, systemId) {
         console.log('\tsystem id = ' + systemId);
         callback();
       });
     },
     function(callback) {
       console.log('readModelNumber');
-      lumen.readModelNumber(function(modelNumber) {
+      lumen.readModelNumber(function(error, modelNumber) {
         console.log('\tmodel number = ' + modelNumber);
         callback();
       });
     },
     function(callback) {
       console.log('readSerialNumber');
-      lumen.readSerialNumber(function(serialNumber) {
+      lumen.readSerialNumber(function(error, serialNumber) {
         console.log('\tserial number = ' + serialNumber);
         callback();
       });
     },
     function(callback) {
       console.log('readFirmwareRevision');
-      lumen.readFirmwareRevision(function(firmwareRevision) {
+      lumen.readFirmwareRevision(function(error, firmwareRevision) {
         console.log('\tfirmware revision = ' + firmwareRevision);
         callback();
       });
     },
     function(callback) {
       console.log('readHardwareRevision');
-      lumen.readHardwareRevision(function(hardwareRevision) {
+      lumen.readHardwareRevision(function(error, hardwareRevision) {
         console.log('\thardware revision = ' + hardwareRevision);
         callback();
       });
     },
     function(callback) {
       console.log('readSoftwareRevision');
-      lumen.readSoftwareRevision(function(softwareRevision) {
+      lumen.readSoftwareRevision(function(error, softwareRevision) {
         console.log('\tsoftware revision = ' + softwareRevision);
         callback();
       });
     },
     function(callback) {
       console.log('readManufacturerName');
-      lumen.readManufacturerName(function(manufacturerName) {
+      lumen.readManufacturerName(function(error, manufacturerName) {
         console.log('\tmanufacturer name = ' + manufacturerName);
         callback();
       });

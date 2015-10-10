@@ -1,7 +1,7 @@
 {
   "name": "lumen",
-  "version": "0.0.2",
-  "description": "node.js lib for the Tabu Lumen",
+  "version": "1.0.0",
+  "description": "Node.js lib for the Tabu Lumen",
   "main": "index.js",
   "scripts": {
     "test": "jshint *.js"
@@ -27,6 +27,6 @@
     "bleno": "~0.0.2"
   },
   "dependencies": {
-    "noble": "~0.2.5"
+    "noble-device": "^1.1.0"
   }
 }

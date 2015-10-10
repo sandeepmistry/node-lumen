@@ -1,7 +1,6 @@
-var events = require('events');
 var util = require('util');
 
-var noble = require('noble');
+var NobleDevice = require('noble-device');
 
 var SERVICE_UUID                            = 'fff0';
 
@@ -28,12 +27,9 @@ var SERVICE_5_UUID                          = 'fff5';
 var SERVICE_KEYADD = [0, 244, 229, 214, 163, 178, 163, 178, 193, 244, 229, 214, 163, 178, 193, 244, 229, 214, 163, 178];
 var SERVICE_KEYXOR = [0, 43, 60, 77, 94, 111, 247, 232, 217, 202, 187, 172, 157, 142, 127, 94, 111, 247, 232, 217];
 
-function Lumen(peripheral) {
-  this._peripheral = peripheral;
-  this._services = {};
-  this._characteristics = {};
 
-  this.uuid = peripheral.uuid;
+var Lumen = function(peripheral) {
+  NobleDevice.call(this, peripheral);
 
   var manufacturerData = peripheral.advertisement.manufacturerData;
 
@@ -43,51 +39,19 @@ function Lumen(peripheral) {
   }
 
   this._keepAliveTimer = null;
-
-  this._peripheral.on('disconnect', this.onDisconnect.bind(this));
-  this._peripheral.on('connect', this.onConnect.bind(this));
-}
-
-util.inherits(Lumen, events.EventEmitter);
-
-Lumen.discover = function(callback) {
-  var startScanningOnPowerOn = function() {
-    if (noble.state === 'poweredOn') {
-      var onDiscover = function(peripheral) {
-        if (!peripheral.advertisement.manufacturerData) {
-          return;
-        }
-
-        noble.removeListener('discover', onDiscover);
-
-        noble.stopScanning();
-
-        var lumen = new Lumen(peripheral);
-
-        callback(lumen);
-      };
-
-      noble.on('discover', onDiscover);
-
-      noble.startScanning([SERVICE_UUID]);
-    } else {
-      noble.once('stateChange', startScanningOnPowerOn);
-    }
-  };
-
-  startScanningOnPowerOn();
+  this.on('disconnect', this._onDisconnect.bind(this));
 };
 
-Lumen.prototype.onDisconnect = function() {
+Lumen.SCAN_UUIDS = [SERVICE_UUID];
+
+NobleDevice.Util.inherits(Lumen, NobleDevice);
+NobleDevice.Util.mixin(Lumen, NobleDevice.BatteryService);
+NobleDevice.Util.mixin(Lumen, NobleDevice.DeviceInformationService);
+
+Lumen.prototype._onDisconnect = function() {
   if (this._keepAliveTimer) {
     clearTimeout(this._keepAliveTimer);
   }
-
-  this.emit('disconnect');
-};
-
-Lumen.prototype.onConnect = function() {
-  this.emit('connect');
 };
 
 Lumen.prototype.toString = function() {
@@ -98,142 +62,76 @@ Lumen.prototype.toString = function() {
   });
 };
 
-Lumen.prototype.connect = function(callback) {
-  this._peripheral.connect(function() {
-    callback();
-  });
-};
-
-Lumen.prototype.disconnect = function(callback) {
-  this._peripheral.disconnect(callback);
-};
-
-Lumen.prototype.discoverServicesAndCharacteristics = function(callback) {
-  this._peripheral.discoverAllServicesAndCharacteristics(function(error, services, characteristics) {
-    if (error === null) {
-      for (var i in services) {
-        var service = services[i];
-        this._services[service.uuid] = service;
-      }
-
-      for (var j in characteristics) {
-        var characteristic = characteristics[j];
-
-        this._characteristics[characteristic.uuid] = characteristic;
-      }
+Lumen.prototype.connectAndSetUp = function(callback) {
+   NobleDevice.prototype.connectAndSetup.call(this, function(error) {
+    if (error) {
+      return callback(error);
     }
 
-    callback();
-  }.bind(this));
-};
+    // send auth codes
+    this._service1Data = new Buffer('08610766a7680f5a183e5e7a3e3cbeaa8a214b6b', 'hex');
 
-Lumen.prototype.readDataCharacteristic = function(uuid, callback) {
-  this._characteristics[uuid].read(function(error, data) {
-    callback(data);
-  });
-};
+    this._writeService1(this._service1Data, function(error) {
+      if (error) {
+        return callback(error);
+      }
 
-Lumen.prototype.writeDataCharacteristic = function(uuid, data, callback) {
-  this._characteristics[uuid].write(data, false, function(error) {
-    callback();
-  });
-};
+      this._readService2(function(error, data) {
+        if (error) {
+          return callback(error);
+        }
 
-Lumen.prototype.readStringCharacteristic = function(uuid, callback) {
-  this.readDataCharacteristic(uuid, function(data) {
-    callback(data.toString());
-  });
-};
+        this._service1Data = new Buffer('07dfd99bfddd545a183e5e7a3e3cbeaa8a214b6b', 'hex');
 
-Lumen.prototype.readDeviceName = function(callback) {
-  this.readStringCharacteristic(DEVICE_NAME_UUID, callback);
-};
+        this._writeService1(this._service1Data, function(error) {
+          if (error) {
+            return callback(error);
+          }
 
-Lumen.prototype.readSystemId = function(callback) {
-  this.readDataCharacteristic(SYSTEM_ID_UUID, function(data) {
-    var systemId = data.toString('hex').match(/.{1,2}/g).reverse().join(':');
+          this._readService2(function(error, data) {
+            if (error) {
+              return callback(error);
+            }
 
-    callback(systemId);
-  });
-};
+            this.keepAlive();
 
-Lumen.prototype.readModelNumber = function(callback) {
-  this.readStringCharacteristic(MODEL_NUMBER_UUID, callback);
-};
-
-Lumen.prototype.readSerialNumber = function(callback) {
-  this.readStringCharacteristic(SERIAL_NUMBER_UUID, callback);
-};
-
-Lumen.prototype.readFirmwareRevision = function(callback) {
-  this.readStringCharacteristic(FIRMWARE_REVISION_UUID, callback);
-};
-
-Lumen.prototype.readHardwareRevision = function(callback) {
-  this.readStringCharacteristic(HARDWARE_REVISION_UUID, callback);
-};
-
-Lumen.prototype.readSoftwareRevision = function(callback) {
-  this.readStringCharacteristic(SOFTWARE_REVISION_UUID, callback);
-};
-
-Lumen.prototype.readManufacturerName = function(callback) {
-  this.readStringCharacteristic(MANUFACTURER_NAME_UUID, callback);
-};
-
-Lumen.prototype.readBatteryLevel = function(callback) {
-  this.readDataCharacteristic(BATTERY_LEVEL_UUID, function(data) {
-    callback(data.readUInt8(0));
-  });
-};
-
-Lumen.prototype.readService1 = function(callback) {
-  this.readDataCharacteristic(SERVICE_1_UUID, callback);
-};
-
-Lumen.prototype.writeService1 = function(data, callback) {
-  this.writeDataCharacteristic(SERVICE_1_UUID, data, function() {
-    callback();
-  });
-};
-
-Lumen.prototype.readService2 = function(callback) {
-  this.readDataCharacteristic(SERVICE_2_UUID, callback);
-};
-
-Lumen.prototype.setup = function(callback) {
-  // send auth codes
-  this._service1Data = new Buffer('08610766a7680f5a183e5e7a3e3cbeaa8a214b6b', 'hex');
-
-  this.writeService1(this._service1Data, function() {
-    this.readService2(function(data) {
-      this._service2Data = data;
-
-      this._service1Data = new Buffer('07dfd99bfddd545a183e5e7a3e3cbeaa8a214b6b', 'hex');
-
-      this.writeService1(this._service1Data, function() {
-        this.readService2(function(data) {
-          this._service2Data = data;
-
-          this.keepAlive();
-
-          callback();
+            callback();
+          }.bind(this));
         }.bind(this));
       }.bind(this));
     }.bind(this));
-  }.bind(this));
+   }.bind(this));
+};
+
+
+Lumen.prototype._readService1 = function(callback) {
+  this.readDataCharacteristic(SERVICE_UUID, SERVICE_1_UUID, callback);
+};
+
+Lumen.prototype._writeService1 = function(data, callback) {
+  this.writeDataCharacteristic(SERVICE_UUID, SERVICE_1_UUID, data, function() {
+    callback();
+  });
+};
+
+Lumen.prototype._readService2 = function(callback) {
+  this.readDataCharacteristic(SERVICE_UUID, SERVICE_2_UUID, callback);
 };
 
 Lumen.prototype.keepAlive = function() {
   this._keepAliveTimer = setTimeout(function() {
-    this.readBatteryLevel(function(batteryLevel) {
+    this.readBatteryLevel(function(error, batteryLevel) {
       this.keepAlive();
     }.bind(this));
   }.bind(this), 5000);
 };
 
 Lumen.prototype.readState = function(callback) {
-  this.readService1(function(data) {
+  this._readService1(function(error, data) {
+    if (error) {
+      return callback(error);
+    }
+
     var state = {};
 
     data = this._decryptResponse(data);
@@ -265,7 +163,7 @@ Lumen.prototype.readState = function(callback) {
     }
     state.mode = mode;
 
-    callback(state);
+    callback(null, state);
   }.bind(this));
 };
 
@@ -314,7 +212,7 @@ Lumen.prototype._0to99 = function(value) {
 Lumen.prototype._writeCommand = function(cmd, callback) {
   cmd = new Buffer(cmd);
 
-  this.writeService1(this._encryptCommand(cmd), callback);
+  this._writeService1(this._encryptCommand(cmd), callback);
 };
 
 Lumen.prototype._encryptCommand = function(buffer) {

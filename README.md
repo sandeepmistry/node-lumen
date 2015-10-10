@@ -22,10 +22,10 @@ var Lumen = require('lumen');
 Lumen.discover(callback(lumen));
 ```
 
-### Connect
+### Connect and setup
 
 ```javascript
-lumen.connect(callback);
+lumen.connectAndSetUp(callback(error));
 ```
 
 ### Disconnect
@@ -34,68 +34,44 @@ lumen.connect(callback);
 lumen.disconnect(callback);
 ```
 
-### Discover Services and Characteristics
-
-Run after connect.
-
-```javascript
-lumen.discoverServicesAndCharacteristics(callback);
-```
-
-### Setup
-
-Run after discover services and characteristics.
-
-```javascript
-lumen.setup(callback);
-```
-
 ### Device Info
 
 ```javascript
-lumen.readDeviceName(callback(deviceName));
+lumen.readDeviceName(callback(error, deviceName));
 
-lumen.readSystemId(callback(systemId));
+lumen.readSystemId(callback(error, systemId));
 
-lumen.readSerialNumber(callback(serialNumber));
+lumen.readSerialNumber(callback(error, serialNumber));
 
-lumen.readModelNumber(callback(modelNumber));
+lumen.readModelNumber(callback(error, modelNumber));
 
-lumen.readFirmwareRevision(callback(firmwareRevision));
+lumen.readFirmwareRevision(callback(error, firmwareRevision));
 
-lumen.readHardwareRevision(callback(hardwareRevision));
+lumen.readHardwareRevision(callback(error, hardwareRevision));
 
-lumen.readSoftwareRevision(callback(softwareRevision));
+lumen.readSoftwareRevision(callback(error, softwareRevision));
 
-lumen.readManufacturerName(callback(manufacturerName));
-```
-
-
-### Battery Level
-
-```javascript
-// batteryLevel range is 0 - 100
-lumen.readBatteryLevel(callback(batteryLevel));
+lumen.readManufacturerName(callback(error, manufacturerName));
 ```
 
 ### Turn off/on
 
 ```javascript
-lumen.turnOff(callback);
+lumen.turnOff(callback(error));
 
-lumen.turnOn(callback);
+lumen.turnOn(callback(error));
 ```
 
 ### Set modes
 
 ```javascript
-lumen.coolMode(callback); // cycles cool colors
+lumen.coolMode(callback(error)); // cycles cool colors
 
-lumen.warmMode(callback); // cycles warm colors
+lumen.warmMode(callback(error)); // cycles warm colors
 
-lumen.disco2Mode(callback); // cycles RGB quickly
+lumen.disco2Mode(callback(error)); // cycles RGB quickly
 
-lumen.disco1Mode(callback); // cycles RGB slowly
+lumen.disco1Mode(callback(error)); // cycles RGB slowly
 ```
 
 ### White
@@ -104,7 +80,7 @@ lumen.disco1Mode(callback); // cycles RGB slowly
 // 0 - 100
 var percentage = 100;
 
-lumen.white(percentage, callback);
+lumen.white(percentage, callback(error));
 ```
 
 ### Color
@@ -115,13 +91,13 @@ var r = 99;
 var g = 0;
 var b = 0;
 
-lumen.color(r, g, b, callback);
+lumen.color(r, g, b, callback(error));
 ```
 
 ### State
 
 ```javascript
-lumen.readState(callback(state));
+lumen.readState(callback(error, state));
 ```
 
 State structure:
