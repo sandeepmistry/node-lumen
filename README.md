@@ -105,7 +105,7 @@ lumen.disco1Mode(callback); // cycles RGB slowly
 var percentage = 100;
 
 lumen.white(percentage, callback);
-###
+```
 
 ### Color
 
