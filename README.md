@@ -1,132 +1,151 @@
-node-lumen
-==========
+# node-lumen
 
 [![Analytics](https://ga-beacon.appspot.com/UA-56089547-1/sandeepmistry/node-lumen?pixel)](https://github.com/igrigorik/ga-beacon)
 
-node.js lib for the [Tabu Lumen](http://tabuproducts.com/shop/lumen-bulb/)
+Node.js lib for the [Tabu Lumen](http://tabuproducts.com/shop/lumen-bulb/)
 
-Install
--------
+## Install
 
+```sh
 npm install lumen
+```
 
-Usage
------
+## Usage
 
-    var Lumen = require('lumen');
+```javascript
+var Lumen = require('lumen');
+```
 
-__Discover__
+### Discover
 
-    Lumen.discover(callback(lumen));
+```javascript
+Lumen.discover(callback(lumen));
+```
 
-__Connect__
+### Connect
 
-    lumen.connect(callback);
+```javascript
+lumen.connect(callback);
+```
 
-__Disconnect__
+### Disconnect
 
-    lumen.disconnect(callback);
+```javascript
+lumen.disconnect(callback);
+```
 
-__Discover Services and Characteristics__
+### Discover Services and Characteristics
 
 Run after connect.
 
-    lumen.discoverServicesAndCharacteristics(callback);
+```javascript
+lumen.discoverServicesAndCharacteristics(callback);
+```
 
-__Setup__
+### Setup
 
 Run after discover services and characteristics.
 
-    lumen.setup(callback);
+```javascript
+lumen.setup(callback);
+```
 
-__Device Info__
+### Device Info
 
-    lumen.readDeviceName(callback(deviceName));
+```javascript
+lumen.readDeviceName(callback(deviceName));
 
-    lumen.readSystemId(callback(systemId));
+lumen.readSystemId(callback(systemId));
 
-    lumen.readSerialNumber(callback(serialNumber));
+lumen.readSerialNumber(callback(serialNumber));
 
-    lumen.readModelNumber(callback(modelNumber));
+lumen.readModelNumber(callback(modelNumber));
 
-    lumen.readFirmwareRevision(callback(firmwareRevision));
-    
-    lumen.readHardwareRevision(callback(hardwareRevision));
+lumen.readFirmwareRevision(callback(firmwareRevision));
 
-    lumen.readSoftwareRevision(callback(softwareRevision));
+lumen.readHardwareRevision(callback(hardwareRevision));
 
-    lumen.readManufacturerName(callback(manufacturerName));
+lumen.readSoftwareRevision(callback(softwareRevision));
 
-__Battery Level__
+lumen.readManufacturerName(callback(manufacturerName));
+```
 
-    // batteryLevel range is 0 - 100
-    lumen.readBatteryLevel(callback(batteryLevel));
 
-__Turn off/on__
+### Battery Level
 
-    lumen.turnOff(callback);
+```javascript
+// batteryLevel range is 0 - 100
+lumen.readBatteryLevel(callback(batteryLevel));
+```
 
-    lumen.turnOn(callback);
+### Turn off/on
 
-__Set modes__
+```javascript
+lumen.turnOff(callback);
 
-    lumen.coolMode(callback); // cycles cool colors
+lumen.turnOn(callback);
+```
 
-    lumen.warmMode(callback); // cycles warm colors
+### Set modes
 
-    lumen.disco2Mode(callback); // cycles RGB quickly
+```javascript
+lumen.coolMode(callback); // cycles cool colors
 
-    lumen.disco1Mode(callback); // cycles RGB slowly
+lumen.warmMode(callback); // cycles warm colors
 
-    lumen.normalMode(callback);
+lumen.disco2Mode(callback); // cycles RGB quickly
 
-__Warm White__
-    
-    // Closest percentage to is used:
-    //   0, 30, 50, 70, 90, 100
+lumen.disco1Mode(callback); // cycles RGB slowly
+```
 
-    var percentage = 100;
+### White
 
-    lumen.warmWhite(percentage, callback);
+```javascript
+// 0 - 100
+var percentage = 100;
 
-__Color__
+lumen.white(percentage, callback);
+###
 
-    var cyan    = 1.0; // 0.0 -> 100.0
-    var magenta = 0.0; // 0.0 -> 100.0
-    var yellow  = 1.0; // 0.0 -> 100.0
-    var white   = 0.0; // 0.0 -> 100.0
+### Color
 
-    lumen.color(cyan, magenta, yellow, white, callback);
+```javascript
+// 0 - 99
+var r = 99;
+var g = 0;
+var b = 0;
 
-__State__
+lumen.color(r, g, b, callback);
+```
 
-    lumen.readState(callback(state));
+### State
+
+```javascript
+lumen.readState(callback(state));
+```
 
 State structure:
-    
-    {
-        on: true | false,
 
-        mode: 'unknown' | 'normal' | 'cool' | 'warm' | 'disco1' | 'disco2' | 'warmWhite' | 'color',
+```javascript
+{
+    on: true | false,
 
-        // if mode is 'warmWhite'
-        warmWhitePercentage: 'unknown' | 100 | 90 | 70 | 50 | 30 | 0,
+    mode: 'unknown' | 'cool' | 'warm' | 'disco1' | 'disco2' | 'white' | 'color',
 
-        // if mode is 'color'
-        colorC: 0.0 - 1.0,
-        colorM: 0.0 - 1.0,
-        colorY: 0.0 - 1.0,
-        colorW: 0.0 - 1.0
-    }
+    // if mode is 'white'
+    percentage: 'unknown' | 0 - 100,
 
+    // if mode is 'color'
+    r: 0 - 99,
+    g: 0 - 99,
+    b: 0 - 99
+}
+```
 
-Events 
-------
+## Events
 
-__Connect__
+### Disconnect
 
-    lumen.on('connect', callback);
-
-__Disconnect__
-
-    lumen.on('disconnect', callback);
+```javascript
+lumen.on('disconnect', callback);
+```
