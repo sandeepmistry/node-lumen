@@ -44,13 +44,13 @@ Lumen.discover(function(lumen) {
       console.log('setup');
       lumen.setup(callback);
     },
-    function(callback) {
-      console.log('readDeviceName');
-      lumen.readDeviceName(function(deviceName) {
-        console.log('\tdevice name = ' + deviceName);
-        callback();
-      });
-    },
+    // function(callback) {
+    //   console.log('readDeviceName');
+    //   lumen.readDeviceName(function(deviceName) {
+    //     console.log('\tdevice name = ' + deviceName);
+    //     callback();
+    //   });
+    // },
     function(callback) {
       console.log('readSystemId');
       lumen.readSystemId(function(systemId) {
@@ -132,73 +132,53 @@ Lumen.discover(function(lumen) {
     },
     delayReadState,
     function(callback) {
-      console.log('normalMode');
-      lumen.normalMode(callback);
+      console.log('white 100%');
+      lumen.white(100, callback);
     },
     delayReadState,
     function(callback) {
-      console.log('warmWhite 100%');
-      lumen.warmWhite(100, callback);
+      console.log('white 90%');
+      lumen.white(90, callback);
     },
     delayReadState,
     function(callback) {
-      console.log('warmWhite 90%');
-      lumen.warmWhite(90, callback);
+      console.log('white 70%');
+      lumen.white(70, callback);
     },
     delayReadState,
     function(callback) {
-      console.log('warmWhite 70%');
-      lumen.warmWhite(70, callback);
+      console.log('white 50%');
+      lumen.white(50, callback);
     },
     delayReadState,
     function(callback) {
-      console.log('warmWhite 50%');
-      lumen.warmWhite(50, callback);
+      console.log('white 30%');
+      lumen.white(30, callback);
     },
     delayReadState,
     function(callback) {
-      console.log('warmWhite 30%');
-      lumen.warmWhite(30, callback);
-    },
-    delayReadState,
-    function(callback) {
-      console.log('warmWhite 0%');
-      lumen.warmWhite(0, callback);
-    },
-    delayReadState,
-    function(callback) {
-      console.log('color cyan');
-      lumen.color(1.0, 0.0, 0.0, 0.0, callback);
-    },
-    delayReadState,
-    function(callback) {
-      console.log('color magenta');
-      lumen.color(0.0, 1.0, 0.0, 0.0, callback);
-    },
-    delayReadState,
-    function(callback) {
-      console.log('color yellow');
-      lumen.color(0.0, 0.0, 1.0, 0.0, callback);
+      console.log('white 0%');
+      lumen.white(0, callback);
     },
     delayReadState,
     function(callback) {
       console.log('color red');
-      lumen.color(0.0, 1.0, 1.0, 0.0, callback);
+      lumen.color(99, 0, 0, callback);
     },
     delayReadState,
     function(callback) {
       console.log('color green');
-      lumen.color(1.0, 0.0, 1.0, 0.0, callback);
+      lumen.color(0, 99, 0, callback);
     },
     delayReadState,
     function(callback) {
       console.log('color blue');
-      lumen.color(1.0, 1.0, 0.0, 0.0, callback);
+      lumen.color(0, 0, 99, callback);
     },
     delayReadState,
     function(callback) {
       console.log('color white');
-      lumen.color(0.0, 0.0, 0.0, 1.0, callback);
+      lumen.color(99, 99, 99, callback);
     },
     delayReadState,
     function(callback) {

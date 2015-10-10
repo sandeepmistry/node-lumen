@@ -25,8 +25,8 @@ var SERVICE_3_UUID                          = 'fff3';
 var SERVICE_4_UUID                          = 'fff4';
 var SERVICE_5_UUID                          = 'fff5';
 
-var SERVICE_KEYADD = new Uint8Array([0, 244, 229, 214, 163, 178, 163, 178, 193, 244, 229, 214, 163, 178, 193, 244, 229, 214, 163, 178]);
-var SERVICE_KEYXOR = new Uint8Array([0, 43, 60, 77, 94, 111, 247, 232, 217, 202, 187, 172, 157, 142, 127, 94, 111, 247, 232, 217]);
+var SERVICE_KEYADD = [0, 244, 229, 214, 163, 178, 163, 178, 193, 244, 229, 214, 163, 178, 193, 244, 229, 214, 163, 178];
+var SERVICE_KEYXOR = [0, 43, 60, 77, 94, 111, 247, 232, 217, 202, 187, 172, 157, 142, 127, 94, 111, 247, 232, 217];
 
 function Lumen(peripheral) {
   this._peripheral = peripheral;
@@ -233,49 +233,34 @@ Lumen.prototype.keepAlive = function() {
 };
 
 Lumen.prototype.readState = function(callback) {
-  this.readService1(function(encdata) {
+  this.readService1(function(data) {
     var state = {};
-    var data = decryptCommand(encdata);
+
+    data = this._decryptResponse(data);
 
     state.on = (data[0] == 0x01);
 
     var MODE_MAPPER = {
-      0x00: 'colorORwarm',
+      0x00: 'normal',
       0x01: 'disco2',           // flashing colors
       0x02: 'disco1',           // very flashing colors
       0x03: 'warm',             // red-orange colors cycle
       0x04: 'cool',             // blue-purple colors cycle
-      0x48: 'normal'            // appears after the 'on' command
     };
-
-    // uncomment to debug
-    //~ console.log(data);
 
     var mode = MODE_MAPPER[data[6]] || 'unknown';
 
-    if (mode === 'colorORwarm') {
-      if (data[4] > 0x0) {
-        mode = 'warmWhite';     // normal lamp mode
-        state.warmWhitePercentage = data[4];
+    if (mode === 'normal') {
+      if (data[4] > 0x00) {
+        mode = 'white';
+        state.percentage = data[4];
+      } else if (data[1] === 0 && data[2] === 0 && data[3] === 0) {
+        mode = 'unknown';
       } else {
-        mode = 'color';         // color lamp mode
-        state.warmWhitePercentage = undefined;
-
-        // rgb state: range 0-99
-        state.colorR = data[1];
-        state.colorG = data[2];
-        state.colorB = data[3];
-
-        // cmyk state: range 0.0-1.0
-        // standard rgb -> cmyk conversion
-        var c = 1. - state.colorR/99.;
-        var m = 1. - state.colorG/99.;
-        var y = 1. - state.colorB/99.;
-        var k = Math.min(c, m, y);
-        state.colorC = c - k;
-        state.colorM = m - k;
-        state.colorY = y - k;
-        state.colorW = 1. - k;
+        mode = 'color';
+        state.r = data[1];
+        state.g = data[2];
+        state.b = data[3];
       }
     }
     state.mode = mode;
@@ -285,114 +270,54 @@ Lumen.prototype.readState = function(callback) {
 };
 
 Lumen.prototype.turnOff = function(callback) {
-  writeCommand(this, [0x0, ], callback)
+  this._writeCommand([0x00], callback);
 };
 
 Lumen.prototype.turnOn = function(callback) {
-  writeCommand(this, [0x01, 0x00, 0x00, 0x00, 0x0, 0x0, 0x48], callback)
+  this._writeCommand([0x01], callback);
 };
 
 Lumen.prototype.coolMode = function(callback) {
-  writeCommand(this, [0x01, 0x00, 0x00, 0x00, 0x0, 0x0, 0x04], callback)
+  this._writeCommand([0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04], callback);
 };
 
 Lumen.prototype.warmMode = function(callback) {
-  writeCommand(this, [0x01, 0x00, 0x00, 0x00, 0x0, 0x0, 0x03], callback)
+  this._writeCommand([0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03], callback);
 };
 
 Lumen.prototype.disco1Mode = function(callback) {
-  writeCommand(this, [0x01, 0x00, 0x00, 0x00, 0x0, 0x0, 0x02], callback)
+  this._writeCommand([0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02], callback);
 };
 
 Lumen.prototype.disco2Mode = function(callback) {
-  writeCommand(this, [0x01, 0x00, 0x00, 0x00, 0x0, 0x0, 0x01], callback)
+  this._writeCommand([0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01], callback);
 };
 
-Lumen.prototype.normalMode = function(callback) {
-  writeCommand(this, [0x01, ], callback)
+Lumen.prototype.white = function(percentage, callback) {
+  this._writeCommand([0x01, 0x00, 0x00, 0x00, this._0to99(percentage)], callback);
 };
 
-Lumen.prototype.warmWhite = function(percentage, callback) {
-  zeroto99 = Math.max(0, Math.min(percentage, 99))
-  writeCommand(this, [0x01, 0x00, 0x00, 0x00, zeroto99], callback)
+Lumen.prototype.color = function (r, g, b, callback) {
+  this._writeCommand([0x01, this._0to99(r), this._0to99(g), this._0to99(b)], callback);
 };
 
-/* Parameters:  c,m,y,w in range 0.0-1.0 */
-Lumen.prototype.color = function(c, m, y, w, callback) {
-  var k = 1. - w
+Lumen.prototype._0to99 = function(value) {
+  if (value < 0) {
+    value = 0;
+  } else if (value > 99) {
+    value = 99;
+  }
 
-  // standard c m y k -> rgb conversion
-  var r = 1. - (c-k);
-  var g = 1. - (m-k);
-  var b = 1. - (y-k);
-
-  this.rgbColor([r*99, g*99, b*99], callback);
+  return value;
 };
 
-/* Parameters:  color:[r,b,g] in range 0-99 */
-Lumen.prototype.rgbColor = function (color, callback) {
-  var cmd = [0x01, 0x99, 0x99, 0x99];
+Lumen.prototype._writeCommand = function(cmd, callback) {
+  cmd = new Buffer(cmd);
 
-  for (var i = 0; i < 3; i++) {
-    // ensure rgb is in range 0-99
-    cmd[i+1] = Math.min(Math.max(0, parseInt(color[i])), 99);
-  }
+  this.writeService1(this._encryptCommand(cmd), callback);
+};
 
-  writeCommand(this, cmd, callback);
-}
-
-/*----------------- Utility functions -----------------*/
-
-function add(array, key) {
-  var i = 0;
-  var j = array.length - 1;
-  while(j >= 0)
-  {
-    var k = i + ((0xff & array[j]) + (0xff & key[j]));
-    if(k >= 256)
-    {
-      i = k >> 8;
-      k -= 256;
-    } else {
-      i = 0;
-    }
-    array[j] = k;
-    j--;
-  }
-}
-
-function subtract(array, key) {
-  var abyte1 = new Uint8Array(array);
-  var abyte2 = new Uint8Array(key);
-  var byte0 = abyte1[0];
-  var byte1 = abyte2[0];
-  var c = 0;
-  if(byte0 < byte1)
-    c = 0xff + 1;
-  for(var i = 0; i < abyte1.length - 1; i++)
-  {
-    var j = 0xff & abyte1[i + 1];
-    var k = 0xff & abyte2[i + 1];
-    var c1 = 0;
-    if(j < k)
-    {
-      abyte1[i] = (-1 + abyte1[i]);
-      c1 = 0xff + 1;
-    }
-    array[i] = ((c + (0xff & abyte1[i])) - (0xff & abyte2[i]));
-    c = c1;
-  }
-
-  array[i] = ((c + (0xff & abyte1[i])) - (0xff & abyte2[i]));
-}
-
-function xor(array, key) {
-  for (var i = 0; i < array.length; i++) {
-    array[i] = array[i] ^ key[i];
-  }
-}
-
-function encryptCommand(buffer) {
+Lumen.prototype._encryptCommand = function(buffer) {
   var data = new Buffer(20);
 
   // Set buffer data
@@ -412,29 +337,69 @@ function encryptCommand(buffer) {
   data[0] = 0x01 & buffer[0];
 
   return data;
-}
+};
 
-function decryptCommand (data) {
-  var data = new Buffer(data);
-  var buf = new Buffer(20);
+Lumen.prototype._decryptResponse = function(response) {
+  var data = new Buffer(20);
 
-  for (var i=0; i<data.length; i++)
-    buf[i] = data[i];
+  response.copy(data);
 
   // Decrypt data
-  xor(buf, SERVICE_KEYXOR);
-  subtract(buf, SERVICE_KEYADD);
+  xor(data, SERVICE_KEYXOR);
+  subtract(data, SERVICE_KEYADD);
 
   // Set 'on' bit
-  buf[0] = 0x01 & data[0];
+  data[0] = 0x01 & response[0];
 
-  return buf;
+  return data;
+};
+
+
+/*----------------- Utility functions -----------------*/
+
+function add(array, key) {
+  var i = 0;
+
+  for(var j = array.length - 1; j >= 0; j--) {
+    var k = i + array[j] + key[j];
+
+    if (k >= 256) {
+      i = k >> 8;
+
+      k -= 256;
+    } else {
+      i = 0;
+    }
+
+    array[j] = k;
+  }
 }
 
-function writeCommand(_this, cmd, callback) {
-  var buf = new Buffer(cmd);
-  var encrypted = encryptCommand(buf);
-  _this.writeService1(encrypted, callback);
+function subtract(array, key) {
+  var a1 = new Buffer(array);
+  var a2 = new Buffer(key);
+
+  var c = (a1[0] < a2[0]) ? 256 : 0;
+
+  for(var i = 0; i < a1.length - 1; i++) {
+    var c1 = 0;
+
+    if (a1[i + 1] < a2[i + 1]) {
+      a1[i] = (-1 + a1[i]);
+      c1 = 256;
+    }
+
+    array[i] = c + a1[i] - a2[i];
+    c = c1;
+  }
+
+  array[i] = c + a1[i] - a2[i];
+}
+
+function xor(array, key) {
+  for (var i = 0; i < array.length; i++) {
+    array[i] = array[i] ^ key[i];
+  }
 }
 
 module.exports = Lumen;
