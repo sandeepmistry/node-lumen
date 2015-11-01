@@ -126,53 +126,8 @@ Lumen.prototype.keepAlive = function() {
   }.bind(this), 5000);
 };
 
-Lumen.prototype.readState = function(callback) {
-  this._readService1(function(error, data) {
-    if (error) {
-      return callback(error);
-    }
-
-    var state = {};
-
-    data = this._decryptResponse(data);
-
-    state.on = (data[0] == 0x01);
-
-    var MODE_MAPPER = {
-      0x00: 'normal',
-      0x01: 'disco2',           // flashing colors
-      0x02: 'disco1',           // very flashing colors
-      0x03: 'warm',             // red-orange colors cycle
-      0x04: 'cool',             // blue-purple colors cycle
-    };
-
-    var mode = MODE_MAPPER[data[6]] || 'unknown';
-
-    if (mode === 'normal') {
-      if (data[4] > 0x00) {
-        mode = 'white';
-        state.percentage = data[4];
-      } else if (data[1] === 0 && data[2] === 0 && data[3] === 0) {
-        mode = 'unknown';
-      } else {
-        mode = 'color';
-        state.r = data[1];
-        state.g = data[2];
-        state.b = data[3];
-      }
-    }
-    state.mode = mode;
-
-    callback(null, state);
-  }.bind(this));
-};
-
 Lumen.prototype.turnOff = function(callback) {
   this._writeCommand([0x00], callback);
-};
-
-Lumen.prototype.turnOn = function(callback) {
-  this._writeCommand([0x01], callback);
 };
 
 Lumen.prototype.coolMode = function(callback) {

@@ -54,12 +54,10 @@ lumen.readSoftwareRevision(callback(error, softwareRevision));
 lumen.readManufacturerName(callback(error, manufacturerName));
 ```
 
-### Turn off/on
+### Turn off
 
 ```javascript
 lumen.turnOff(callback(error));
-
-lumen.turnOn(callback(error));
 ```
 
 ### Set modes
@@ -92,30 +90,6 @@ var g = 0;
 var b = 0;
 
 lumen.color(r, g, b, callback(error));
-```
-
-### State
-
-```javascript
-lumen.readState(callback(error, state));
-```
-
-State structure:
-
-```javascript
-{
-    on: true | false,
-
-    mode: 'unknown' | 'cool' | 'warm' | 'disco1' | 'disco2' | 'white' | 'color',
-
-    // if mode is 'white'
-    percentage: 'unknown' | 0 - 100,
-
-    // if mode is 'color'
-    r: 0 - 99,
-    g: 0 - 99,
-    b: 0 - 99
-}
 ```
 
 ## Events

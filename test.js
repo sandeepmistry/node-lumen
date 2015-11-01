@@ -10,21 +10,9 @@ Lumen.discover(function(lumen) {
     process.exit(0);
   });
 
-  function readState(callback) {
-    console.log('readState');
-
-    lumen.readState(function(error, state) {
-      console.log('\t' + JSON.stringify(state));
-
-      callback();
-    });
-  }
-
-  function delayReadState(callback) {
+  function delay(callback) {
     console.log('delay');
-    setTimeout(function() {
-      readState(callback);
-    }, 1000);
+    setTimeout(callback, 1000);
   }
 
   async.series([
@@ -88,87 +76,81 @@ Lumen.discover(function(lumen) {
         callback();
       });
     },
-    readState,
     function(callback) {
       console.log('turnOff');
       lumen.turnOff(callback);
     },
-    delayReadState,
-    function(callback) {
-      console.log('turnOn');
-      lumen.turnOn(callback);
-    },
-    delayReadState,
+    delay,
     function(callback) {
       console.log('coolMode');
       lumen.coolMode(callback);
     },
-    delayReadState,
+    delay,
     function(callback) {
       console.log('warmMode');
       lumen.warmMode(callback);
     },
-    delayReadState,
+    delay,
     function(callback) {
       console.log('disco2Mode');
       lumen.disco2Mode(callback);
     },
-    delayReadState,
+    delay,
     function(callback) {
       console.log('disco1Mode');
       lumen.disco1Mode(callback);
     },
-    delayReadState,
+    delay,
     function(callback) {
       console.log('white 100%');
       lumen.white(100, callback);
     },
-    delayReadState,
+    delay,
     function(callback) {
       console.log('white 90%');
       lumen.white(90, callback);
     },
-    delayReadState,
+    delay,
     function(callback) {
       console.log('white 70%');
       lumen.white(70, callback);
     },
-    delayReadState,
+    delay,
     function(callback) {
       console.log('white 50%');
       lumen.white(50, callback);
     },
-    delayReadState,
+    delay,
     function(callback) {
       console.log('white 30%');
       lumen.white(30, callback);
     },
-    delayReadState,
+    delay,
     function(callback) {
       console.log('white 0%');
       lumen.white(0, callback);
     },
-    delayReadState,
+    delay,
     function(callback) {
       console.log('color red');
       lumen.color(99, 0, 0, callback);
     },
-    delayReadState,
+    delay,
     function(callback) {
       console.log('color green');
       lumen.color(0, 99, 0, callback);
     },
-    delayReadState,
+    delay,
     function(callback) {
       console.log('color blue');
       lumen.color(0, 0, 99, callback);
     },
-    delayReadState,
+    delay,
     function(callback) {
       console.log('color white');
       lumen.color(99, 99, 99, callback);
     },
-    delayReadState,
+    delay,
     function(callback) {
       console.log('disconnect');
       lumen.disconnect(callback);
